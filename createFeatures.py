@@ -19,13 +19,3 @@ def findWordCount(poem):
         wordsInLine = line.split(" ")
         wordCount += len(wordsInLine)
     return wordCount
-
-
-poems = poemsShorterOrEqualTo(2)
-
-for poem in poems:
-    print("title: " + poem['title'])
-    print("author: " + poem['author'])
-    print("lines: " + poem['lines'][0] + "...")
-    print("linecount: " + poem['linecount'])
-    print("wordcount: " + str(findWordCount(poem)))
