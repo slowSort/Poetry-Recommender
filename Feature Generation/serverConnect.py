@@ -9,7 +9,7 @@ mydb = mysql.connector.connect(
   database="sys"
 )
 
-poems = poemsShorterOrEqualTo(3)
+poems = poemsShorterOrEqualTo(6)
 
 mycursor = mydb.cursor()
 for poem in poems:

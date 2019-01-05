@@ -13,8 +13,13 @@ module.exports = function(app){
   });
 
   app.post('/newpoem', urlencodedParser, function(req,res){
-    data = {title: "my brotha"}
-    res.json(data);
+    app.db.getRandomPoem(function(err, poem){
+      if (err) {
+        console.log("poem not returned")
+      } else {
+        res.render('poem.ejs', {poems: poem});
+      }
+    })
   });
 
 };
