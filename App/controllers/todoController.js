@@ -12,9 +12,8 @@ module.exports = function(app){
     })
   });
 
-  app.post('/todo', urlencodedParser, function(req,res){
-    //could replace this with a new poem refresh
-    data.push(req.body);
+  app.post('/newpoem', urlencodedParser, function(req,res){
+    data = {title: "my brotha"}
     res.json(data);
   });
 
