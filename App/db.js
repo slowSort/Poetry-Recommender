@@ -33,6 +33,7 @@ exports.getRandomPoem = function(callback) {
   pool.query('SELECT * FROM poems ORDER BY RAND() LIMIT 1', function(err, results) {
     if (err) callback(error, null)
     var poem = {
+      poem_id: results[0].poem_id,
       title: results[0].title,
       author: results[0].author,
       lines: JSON.parse(results[0].lines)

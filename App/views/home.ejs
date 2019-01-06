@@ -7,14 +7,14 @@
     <link href="/assets/styles.css" rel="stylesheet" type="text/css" />
   <head>
   <body>
-    <div id="poem">
+    <div id="poem_div">
       <h1><%= poems.title %></h1>
       <% for(var i=0; i<poems.lines.length; i++){ %>
         <p><%= poems.lines[i] %></p>
       <% } %>
       <h2><%= poems.author%><h2>
     </div>
-    <button type="like-button"> Like </button>
-    <button type="dislike-button"> Dislike </button>
+    <button id="like-button"> Like </button>
+    <button id="dislike-button"> Dislike </button>
   <body>
 </html>
