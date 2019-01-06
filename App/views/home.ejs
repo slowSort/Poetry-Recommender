@@ -8,11 +8,7 @@
   <head>
   <body>
     <div id="poem_div">
-      <h1><%= poems.title %></h1>
-      <% for(var i=0; i<poems.lines.length; i++){ %>
-        <p><%= poems.lines[i] %></p>
-      <% } %>
-      <h2><%= poems.author%><h2>
+      <%- include poem.ejs %>
     </div>
     <button id="like-button"> Like </button>
     <button id="dislike-button"> Dislike </button>
