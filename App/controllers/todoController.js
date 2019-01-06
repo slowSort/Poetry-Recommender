@@ -16,8 +16,17 @@ module.exports = function(app){
 
   app.post('/newpoem', urlencodedParser, function(req,res){
     //Add recommendation data to the server
-    console.log("buttonName: " + req.body.buttonName)
-    console.log("poem_id: " + req.body.poem_id)
+    var poem_id = req.body.poem_id;
+    var user_id = 1; //hardcoded user for now, as only 1 user
+    var opinion;
+
+    if (req.body.buttonName === "like-button") {
+      opinion = 1;
+    } else {
+      opinion = -1;
+    }
+
+    app.db.storeOpinion(poem_id, user_id, opinion);
 
     //Return a new poem
     app.db.getRandomPoem(function(err, poem){

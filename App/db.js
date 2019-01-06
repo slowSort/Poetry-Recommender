@@ -36,9 +36,22 @@ exports.getRandomPoem = function(callback) {
       poem_id: results[0].poem_id,
       title: results[0].title,
       author: results[0].author,
-      lines: JSON.parse(results[0].lines)
+      lines: JSON.parse(results[0].lines),
+      wordcount: results[0].wordcount,
     }
     callback(null, poem);
+  })
+}
+
+exports.storeOpinion = function(poem_id, user_id, opinion) {
+  var pool = state.pool
+  if (!pool) return done(new Error('Missing database connection.'))
+  var sql = 'INSERT INTO poems_users (poem_id, user_id, opinion) VALUES (?, ?, ?)' +
+            'ON DUPLICATE KEY UPDATE opinion = opinion';
+  var value = [poem_id, user_id, opinion];
+
+  pool.query(sql, value, function(err, results) {
+    if (err) throw err;
   })
 }
 
