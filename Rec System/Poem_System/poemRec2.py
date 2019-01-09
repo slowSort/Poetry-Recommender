@@ -1,13 +1,11 @@
-# https://www.datacamp.com/community/tutorials/recommender-systems-python
-
 # Import Pandas
 import pandas as pd
-# Import String
-import string
+# Import Numpy
+import numpy as np
 # Import TfIdfVectorizer from scikit-learn
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 # Import linear_kernel
-from sklearn.metrics.pairwise import linear_kernel
+from sklearn.metrics.pairwise import linear_kernel, cosine_similarity
 
 """
 Since you have used the TF-IDF vectorizer, calculating the dot product will
@@ -16,6 +14,8 @@ sklearn's linear_kernel() instead of cosine_similarities() since it is faster.
 """
 
 import mysql.connector
+
+np.set_printoptions(threshold=np.inf)
 
 mydb = mysql.connector.connect(
   host="localhost",
@@ -28,10 +28,10 @@ mydb = mysql.connector.connect(
 poems = pd.read_sql("SELECT * FROM poems", mydb)
 poems = poems[['poem_id', 'title', 'author',
                'lines', 'linecount', 'wordcount']]
+
 poems['lines'] = poems['lines'].map(lambda x: ''.join(x))
-remove_punct_map = dict.fromkeys(map(ord, string.punctuation))
-poems['lines'] = poems['lines'].map(lambda x: x.translate(remove_punct_map))
-# Define a TF-IDF Vectorizer Object.
+poems['lines'].head()
+
 # Remove all english stop words such as 'the', 'a'
 tfidf = TfidfVectorizer(stop_words='english')
 # flatten poem lines into a list of strings
@@ -41,17 +41,19 @@ poems['lines'] = poems['lines'].fillna('')
 # Construct the required TF-IDF matrix by fitting and transforming the data
 
 tfidf_matrix = tfidf.fit_transform(poems['lines'])
+
 # Compute the cosine similarity matrix
+# Linear kernel used as it's faster
 cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 # Construct a reverse map of indices and movie titles
-indices = pd.Series(poems.index, index=poems['title']).drop_duplicates()
+indices = pd.Series(poems.index, index=poems['poem_id']).drop_duplicates()
 
 
 # Function that takes in movie title as input and outputs most similar movies
-def get_recommendations(title, cosine_sim=cosine_sim):
+def get_recommendations(poem_id, cosine_sim=cosine_sim):
     # Get the index of the movie that matches the title
-    idx = indices[title]
-    # Get the pairwsie similarity scores of all movies with that movie
+    idx = indices[poem_id]
+    # Get the pairwsie similarity scores of all movies with that moviee
     sim_scores = list(enumerate(cosine_sim[idx]))
     # Sort the movies based on the similarity scores
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
@@ -63,4 +65,30 @@ def get_recommendations(title, cosine_sim=cosine_sim):
     return poems['title'].iloc[movie_indices]
 
 
-print(get_recommendations('The Lily'))
+# print(get_recommendations(102))
+
+
+# Function to convert all strings to lower case and strip names of spaces
+def clean_author(x):
+    return str.lower(x.replace(" ", ""))
+
+
+poems['author'] = poems['author'].apply(clean_author)
+
+count = CountVectorizer(stop_words='english')
+count_matrix = count.fit_transform(poems['author'])
+cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
+
+poems = poems.reset_index()
+indices = pd.Series(poems.index, index=poems['poem_id']).drop_duplicates()
+
+# Downweight author significance in vectorizer
+cosine_sim2 = np.multiply(cosine_sim2, 0.1)
+# print(cosine_sim2)
+# Average the two cosine similarities
+final_sim = np.mean(np.array([cosine_sim, cosine_sim2]), axis=0)
+print(cosine_sim[0])
+print(final_sim[0])
+print(get_recommendations(102, cosine_sim))
+print(get_recommendations(102, cosine_sim2))
+print(get_recommendations(102, final_sim))

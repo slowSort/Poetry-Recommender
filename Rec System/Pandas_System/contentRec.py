@@ -28,6 +28,7 @@ metadata = metadata.reset_index()
 metadata['overview'] = metadata['overview'].fillna('')
 # Construct the required TF-IDF matrix by fitting and transforming the data
 tfidf_matrix = tfidf.fit_transform(metadata['overview'])
+print(metadata['overview'])
 # Compute the cosine similarity matrix
 cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 # Construct a reverse map of indices and movie titles

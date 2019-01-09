@@ -46,6 +46,8 @@ for index, row in df.iterrows():
     # assigning the key words to the new column for the corresponding movie
     row['Key_words'] = list(key_words_dict_scores.keys())
 
+
+print(df['Key_words'])
 # dropping the Plot column
 df.drop(columns=['Plot'], inplace=True)
 
@@ -65,7 +67,6 @@ for index, row in df.iterrows():
 
 df.drop(columns=[col for col in df.columns if col != 'bag_of_words'],
         inplace=True)
-
 
 # in the article at this point artist names and genres were cleaned and added
 
