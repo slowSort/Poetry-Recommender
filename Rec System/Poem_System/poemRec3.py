@@ -1,15 +1,7 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[15]:
-
-
 # Import Pandas
 import pandas as pd
 # Import Numpy
 import numpy as np
-# Import Itertools
-import itertools
 # Import TfIdfVectorizer from scikit-learn
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 # Import linear_kernel
@@ -73,7 +65,19 @@ def get_recommendations(poem_id, cosine_sim=cosine_sim):
     return poems['title'].iloc[movie_indices]
 
 
-# print(get_recommendations(102))
+def to_similarity_matrix(feature):
+    'input is an array of numbers, returns a numpy 2d matrix'
+    simMatrix = []
+    for x in feature:
+        row = []
+        for y in feature:
+            # this math is quite important
+            # find difference between two numbers
+            # add 1 to prevent / 0 error
+            # divide 1 by new number to get scaled similarity
+            row.append(1/((max(x, y)-min(x, y))+1))
+        simMatrix.append(row)
+    return np.array(simMatrix)
 
 
 # Function to convert all strings to lower case and strip names of spaces
@@ -85,79 +89,30 @@ poems['author'] = poems['author'].apply(clean_author)
 
 count = CountVectorizer(stop_words='english')
 count_matrix = count.fit_transform(poems['author'])
-cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
+author_sim = cosine_similarity(count_matrix, count_matrix)
+# Downweight author significance in vectorizer
+author_sim = np.multiply(author_sim, 0.1)
 
 poems = poems.reset_index()
 indices = pd.Series(poems.index, index=poems['poem_id']).drop_duplicates()
 
-# Downweight author significance in vectorizer
-cosine_sim2 = np.multiply(cosine_sim2, 0.1)
-# print(cosine_sim2)
+# Create sim matrix for line count
+lines_sim = to_similarity_matrix(poems['linecount'])
+# Create sim matrix for word count
+wordcount_sim = to_similarity_matrix(poems['wordcount'])
+wordcount_sim = np.multiply(wordcount_sim, 0.2)
 # Average the two cosine similarities
-final_sim = np.mean(np.array([cosine_sim, cosine_sim2]), axis=0)
+final_features = [cosine_sim, author_sim, lines_sim, wordcount_sim]
+final_sim = np.mean(np.array(final_features), axis=0)
 
-
-# In[46]:
-
-
-print(cosine_sim[2])
-
-
-# In[7]:
-
-
-print(cosine_sim2[0])
-
-
-# In[4]:
-
-
+# print(cosine_sim[0])
+# print(author_sim[0])
+# print(lines_sim[0])
+print(wordcount_sim[0])
 print(final_sim[0])
 
-
-# In[8]:
-
-
-print(get_recommendations(102, cosine_sim))
-
-
-# In[9]:
-
-
-print(get_recommendations(102, cosine_sim2))
-
-
-# In[10]:
-
-
-print(get_recommendations(102, final_sim))
-
-
-# In[53]:
-
-
-simMatrix = []
-for x in poems['linecount']:
-    row = []
-    for y in poems['linecount']:
-        # this math is quite important
-        # find difference between two numbers
-        # add 1 to prevent / 0 error
-        # divide 1 by new number to get scaled similarity
-        row.append(1/((max(x, y)-min(x, y))+1))
-    simMatrix.append(row)
-lines_sim = np.array(simMatrix)
-print(lines_sim[2])
-
-
-# In[55]:
-
-
+# print(get_recommendations(102, cosine_sim))
+# print(get_recommendations(102, author_sim))
 print(get_recommendations(107, lines_sim))
-
-
-# In[ ]:
-
-
-
-
+print(get_recommendations(107, wordcount_sim))
+print(get_recommendations(102, final_sim))
