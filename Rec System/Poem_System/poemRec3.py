@@ -2,6 +2,8 @@
 import pandas as pd
 # Import Numpy
 import numpy as np
+# Import get user profile
+from userProfile import get_user_profile
 # Import TfIdfVectorizer from scikit-learn
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 # Import linear_kernel
@@ -29,8 +31,12 @@ poems = pd.read_sql("SELECT * FROM poems", mydb)
 poems = poems[['poem_id', 'title', 'author',
                'lines', 'linecount', 'wordcount']]
 
+userProfile = get_user_profile()
+print(poems.shape)
+poems = poems.append(userProfile, ignore_index=True)
+print(poems.shape)
+
 poems['lines'] = poems['lines'].map(lambda x: ''.join(x))
-poems['lines'].head()
 
 # Remove all english stop words such as 'the', 'a'
 tfidf = TfidfVectorizer(stop_words='english')
@@ -81,8 +87,12 @@ def to_similarity_matrix(feature):
 
 
 # Function to convert all strings to lower case and strip names of spaces
+# Hyphens separate authors, and so are replaced with spaces for many authors
 def clean_author(x):
-    return str.lower(x.replace(" ", ""))
+    if isinstance(x, list):
+        return " ".join(x)
+    else:
+        return str.lower(x.replace(" ", ""))
 
 
 poems['author'] = poems['author'].apply(clean_author)
@@ -108,11 +118,12 @@ final_sim = np.mean(np.array(final_features), axis=0)
 # print(cosine_sim[0])
 # print(author_sim[0])
 # print(lines_sim[0])
-print(wordcount_sim[0])
-print(final_sim[0])
+# print(wordcount_sim[0])
+# print(final_sim[0])
 
 # print(get_recommendations(102, cosine_sim))
 # print(get_recommendations(102, author_sim))
-print(get_recommendations(107, lines_sim))
-print(get_recommendations(107, wordcount_sim))
-print(get_recommendations(102, final_sim))
+# print(get_recommendations(107, lines_sim))
+# print(get_recommendations(107, wordcount_sim))
+# print(get_recommendations(102, final_sim))
+print(get_recommendations(1, final_sim))
