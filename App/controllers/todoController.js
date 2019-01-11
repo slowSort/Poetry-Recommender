@@ -1,4 +1,5 @@
 var bodyParser = require('body-parser');
+var {PythonShell} = require('python-shell')
 var urlencodedParser = bodyParser.urlencoded({extended: false});
 
 module.exports = function(app){
@@ -14,6 +15,13 @@ module.exports = function(app){
     })
   });
 
+  app.get('/recommendations', function(req,res){
+    PythonShell.run('./controllers/poemRec.py', null, function (err, results) {
+      if (err) throw err;
+      res.send(JSON.parse(results))
+    });
+  });
+
   app.post('/newpoem', urlencodedParser, function(req,res){
     //Add recommendation data to the server
     var poem_id = req.body.poem_id;
@@ -26,7 +34,7 @@ module.exports = function(app){
       opinion = -1;
     }
 
-    app.db.storeOpinion(poem_id, user_id, opinion);
+    //app.db.storeOpinion(poem_id, user_id, opinion);
 
     //Return a new poem
     app.db.getRandomPoem(function(err, poem){
