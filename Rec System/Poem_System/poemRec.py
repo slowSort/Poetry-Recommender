@@ -67,7 +67,15 @@ def recommend_user_poems():
         return poems['title'].iloc[movie_indices]
 
     # Load Movies Metadata as a DataFrame
-    poems = pd.read_sql("SELECT * FROM poems", mydb)
+    poems = pd.read_sql("""
+    SELECT *
+    FROM poems
+    WHERE poem_id NOT IN (
+        SELECT poem_id
+        FROM poems_users
+        WHERE user_id = 1
+    )
+    """, mydb)
     poems = poems[['poem_id', 'title', 'author',
                    'lines', 'linecount', 'wordcount']]
     # Load user profile for comparison and add it to poem matrix
