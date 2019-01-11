@@ -1,17 +1,9 @@
 # Import Pandas
 import pandas as pd
-# Import Numpy
-import numpy as np
 # Import mean
 from statistics import mean
-# Import TfIdfVectorizer from scikit-learn
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-# Import linear_kernel
-from sklearn.metrics.pairwise import linear_kernel, cosine_similarity
 
 import mysql.connector
-
-np.set_printoptions(threshold=np.inf)
 
 mydb = mysql.connector.connect(
   host="localhost",
@@ -19,13 +11,6 @@ mydb = mysql.connector.connect(
   password="cKeecl00",
   database="sys"
 )
-
-
-def clean_author(x):
-    if isinstance(x, list):
-        return [str.lower(i.replace(" ", "")) for i in x]
-    else:
-        return str.lower(x.replace(" ", ""))
 
 
 def get_user_profile():
