@@ -2,20 +2,15 @@ var bodyParser = require('body-parser');
 var {PythonShell} = require('python-shell')
 var urlencodedParser = bodyParser.urlencoded({extended: false});
 
+var poetryList = [146, 147]
+
 module.exports = function(app){
   app.use(bodyParser.json());  //bodyParser
 
-  app.get('/home', function(req,res){
-    /*
-    app.db.getRandomPoem(function(err, poem){
-      if (err) console.log("home getRandomPoem: error");
+  app.get('/home', function (req, res) {
+    getPoem(function(poem){
       res.render('home', {poems: poem});
-    })
-    */
-    app.db.getPoemByID(147, function(err, poem){
-      if (err) console.log("home getPoemByID: error");
-      res.render('home', {poems: poem});
-    })
+    });
   });
 
   app.get('/poemrec', function(req,res){
@@ -29,21 +24,35 @@ module.exports = function(app){
     //Add recommendation data to the server
     var poem_id = req.body.poem_id;
     var user_id = 1; //hardcoded user for now, as only 1 user
-    var opinion;
-
-    if (req.body.buttonName === "like-button") {
-      opinion = 1;
-    } else {
-      opinion = -1;
-    }
-
-    //app.db.storeOpinion(poem_id, user_id, opinion);
-
-    //Return a new poem
-    app.db.getRandomPoem(function(err, poem){
-      if (err) console.log("newpoem getRandomPoem: error");
-      res.render('poem.ejs', {poems: poem});
-    })
+    var opinion = (req.body.buttonName === "like-button") ? 1 : 0;
+    app.db.storeOpinion(poem_id, user_id, opinion);
+    getPoem(function(poem){
+      res.render('poem', {poems: poem});
+    });
   });
+
+  function getPoem(callback){
+    let returnPoem = null
+    if (poetryList.length !== 0) {
+      app.db.getPoemByID(poetryList.shift(), function(err, poem){
+        if (err) console.log("home getPoemByID: error");
+        returnPoem = poem
+        callback(returnPoem)
+      })
+    } else {
+      app.db.getRandomPoem(function(err, poem){
+        if (err) console.log("home getRandomPoem: error");
+        returnPoem = poem
+        callback(returnPoem)
+      })
+    }
+    if (poetryList.length < 5) {
+      PythonShell.run('./controllers/poemRec.py', null, function (err, results) {
+        if (err) throw err;
+        poetryList = JSON.parse(results)
+      });
+    }
+    console.log(poetryList)
+  }
 
 };
