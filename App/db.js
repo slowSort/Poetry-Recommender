@@ -26,6 +26,24 @@ exports.connect = function(mode, done) {
   done()
 }
 
+exports.getPoemByID = function(poem_id, callback) {
+  var pool = state.pool
+  if(!pool) return done(new Error('Missing database connection.'))
+
+  var sql = 'SELECT * FROM poems WHERE poem_id = ?';
+  pool.query('SELECT * FROM poems WHERE poem_id = ?', poem_id, function(err, results) {
+    if (err) callback(error, null)
+    var poem = {
+      poem_id: results[0].poem_id,
+      title: results[0].title,
+      author: results[0].author,
+      lines: JSON.parse(results[0].lines),
+      wordcount: results[0].wordcount,
+    }
+    callback(null, poem);
+  })
+}
+
 exports.getRandomPoem = function(callback) {
   var pool = state.pool
   if (!pool) return done(new Error('Missing database connection.'))

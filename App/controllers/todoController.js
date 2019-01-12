@@ -6,16 +6,19 @@ module.exports = function(app){
   app.use(bodyParser.json());  //bodyParser
 
   app.get('/home', function(req,res){
+    /*
     app.db.getRandomPoem(function(err, poem){
-      if (err) {
-        console.log("poem not returned")
-      } else {
-        res.render('home', {poems: poem});
-      }
+      if (err) console.log("home getRandomPoem: error");
+      res.render('home', {poems: poem});
+    })
+    */
+    app.db.getPoemByID(147, function(err, poem){
+      if (err) console.log("home getPoemByID: error");
+      res.render('home', {poems: poem});
     })
   });
 
-  app.get('/recommendations', function(req,res){
+  app.get('/poemrec', function(req,res){
     PythonShell.run('./controllers/poemRec.py', null, function (err, results) {
       if (err) throw err;
       res.send(JSON.parse(results))
@@ -38,11 +41,8 @@ module.exports = function(app){
 
     //Return a new poem
     app.db.getRandomPoem(function(err, poem){
-      if (err) {
-        console.log("poem not returned")
-      } else {
-        res.render('poem.ejs', {poems: poem});
-      }
+      if (err) console.log("newpoem getRandomPoem: error");
+      res.render('poem.ejs', {poems: poem});
     })
   });
 
