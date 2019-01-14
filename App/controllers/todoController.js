@@ -31,6 +31,11 @@ module.exports = function(app){
     });
   });
 
+  app.delete('/clear', function(req, res){
+    app.db.clearRecommender();
+    console.log('Cleared the recommender');
+  });
+
   function getPoem(callback){
     let returnPoem = null
     if (poetryList.length !== 0) {

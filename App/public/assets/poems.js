@@ -1,5 +1,6 @@
 $(document).ready(function(){
-  $('button').on('click', function(){
+
+  $('.rating').on('click', function(){
     var buttonName = this.id; //this id is the buttons name
     var poem_id = $('#poem').data('id') //this id is for the poem
       $.ajax({
@@ -13,6 +14,14 @@ $(document).ready(function(){
         success: function(poem){
           $('#poem_div').html(poem);
         }
+      });
+      return false;
+  });
+
+  $('#clear').on('click', function(){
+      $.ajax({
+        type: 'DELETE',
+        url: '/clear'
       });
       return false;
   });

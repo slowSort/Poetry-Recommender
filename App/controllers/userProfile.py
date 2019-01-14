@@ -2,14 +2,15 @@
 import pandas as pd
 # Import mean
 from statistics import mean
+from conf import config
 
 import mysql.connector
 
 mydb = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="cKeecl00",
-  database="sys"
+  host=config.host,
+  user=config.user,
+  password=config.password,
+  database=config.database
 )
 
 

@@ -3,8 +3,7 @@
 var mysql = require('mysql')
   , async = require('async')
 
-var PRODUCTION_DB = 'sys'
-  , TEST_DB = 'sys'
+var conf = require('./conf.js')
 
 exports.MODE_TEST = 'mode_test'
 exports.MODE_PRODUCTION = 'mode_production'
@@ -14,11 +13,19 @@ var state = {
   mode: null,
 }
 
+var host = conf.host;
+var user = conf.user;
+var password = conf.password;
+var database = conf.database;
+
+var PRODUCTION_DB = database
+  , TEST_DB = database
+
 exports.connect = function(mode, done) {
   state.pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'cKeecl00',
+    host: host,
+    user: user,
+    password: password,
     database: mode === exports.MODE_PRODUCTION ? PRODUCTION_DB : TEST_DB
   })
 
@@ -41,6 +48,15 @@ exports.getPoemByID = function(poem_id, callback) {
       wordcount: results[0].wordcount,
     }
     callback(null, poem);
+  })
+}
+
+exports.clearRecommender = function(){
+  var pool = state.pool
+  if(!pool) return done(new Error('Missing database connection.'))
+
+  pool.query('TRUNCATE poems_users', function(err, results) {
+    if (err) throw err;
   })
 }
 

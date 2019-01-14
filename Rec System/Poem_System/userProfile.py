@@ -6,10 +6,10 @@ from statistics import mean
 import mysql.connector
 
 mydb = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="cKeecl00",
-  database="sys"
+  host="",
+  user="",
+  password="",
+  database=""
 )
 
 
